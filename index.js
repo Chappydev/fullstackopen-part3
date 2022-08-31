@@ -63,6 +63,20 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
   const body = req.body;
 
+  if (!body.name) {
+    return res.status(400).json({
+      error: 'Must include a name'
+    });
+  } else if (!body.number) {
+    return res.status(400).json({
+      error: 'Must include a number'
+    });
+  } else if (persons.some(person => person.name === body.name)) {
+    return res.status(400).json({
+      error: 'Name must be unique'
+    });
+  }
+
   const person = {
     id: generateId(),
     name: body.name,
