@@ -59,21 +59,16 @@ app.post('/api/persons', (req, res) => {
     return res.status(400).json({
       error: 'Must include a number'
     });
-  } else if (persons.some(person => person.name === body.name)) {
-    return res.status(400).json({
-      error: 'Name must be unique'
-    });
   }
 
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
-    number: body.number
-  };
+    number: body.number,
+  });
 
-  persons = persons.concat(person);
-
-  res.json(person);
+  person.save().then(savedPerson => {
+    res.json(savedPerson);
+  });
 });
 
 const PORT = process.env.PORT;
