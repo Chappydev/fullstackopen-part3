@@ -24,10 +24,12 @@ app.get('/info', (req, res) => {
   res.send(`<p>Phonebook includes ${numberOfPeople} people</p><p>${timeOfRequest}</p>`);
 });
 
-app.get('/api/persons', (req, res) => {
-  Person.find({}).then(persons => {
-    res.json(persons);
-  });
+app.get('/api/persons', (req, res, next) => {
+  Person.find({})
+    .then(persons => {
+      res.json(persons);
+    })
+    .catch(err => next(err));
 });
 
 app.get('/api/persons/:id', (req, res) => {
@@ -41,18 +43,15 @@ app.get('/api/persons/:id', (req, res) => {
   }
 });
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then(result => {
       res.status(204).end();
     })
-    .catch(err => {
-      console.log(err);
-      return res.status(500).end();
-    })
+    .catch(err => next(err));
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body;
 
   if (!body.name) {
@@ -70,10 +69,24 @@ app.post('/api/persons', (req, res) => {
     number: body.number,
   });
 
-  person.save().then(savedPerson => {
-    res.json(savedPerson);
-  });
+  person.save()
+    .then(savedPerson => {
+      res.json(savedPerson);
+    })
+    .catch(err => next(err));
 });
+
+const errorHandler = (err, request, response, next) => {
+  console.error(err.message)
+
+  if (err.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(err)
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
