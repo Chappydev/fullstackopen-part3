@@ -72,7 +72,6 @@ app.post('/api/persons', (req, res, next) => {
   Person.find({ name: body.name })
     .then(result => {
       if (result.length > 0) {
-        console.log(result);
         return res.status(400).json({
           error: `The name ${body.name} already exists in the database`
         });
