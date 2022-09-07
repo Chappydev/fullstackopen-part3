@@ -57,6 +57,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res, next) => {
   const body = req.body;
+  
 
   if (!body.name) {
     return res.status(400).json({
@@ -66,16 +67,27 @@ app.post('/api/persons', (req, res, next) => {
     return res.status(400).json({
       error: 'Must include a number'
     });
-  }
+  } 
 
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  });
-
-  person.save()
-    .then(savedPerson => {
-      res.json(savedPerson);
+  Person.find({ name: body.name })
+    .then(result => {
+      if (result.length > 0) {
+        console.log(result);
+        return res.status(400).json({
+          error: `The name ${body.name} already exists in the database`
+        });
+      }
+      
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      });
+    
+      person.save()
+        .then(savedPerson => {
+          res.json(savedPerson);
+        })
+        .catch(err => next(err));
     })
     .catch(err => next(err));
 });
