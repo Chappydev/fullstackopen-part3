@@ -19,7 +19,7 @@ const Person = mongoose.model('Person', personSchema);
 if (process.argv.length === 3) {
   mongoose
     .connect(url)
-    .then(res => {
+    .then(() => {
       return Person.find({});
     })
     .then(persons => {
@@ -33,18 +33,18 @@ if (process.argv.length === 3) {
     .catch(err => console.log(err));
 } else {
   mongoose
-  .connect(url)
-  .then(res => {
-    const person = new Person({
-      name: process.argv[3],
-      number: process.argv[4],
-    })
+    .connect(url)
+    .then(() => {
+      const person = new Person({
+        name: process.argv[3],
+        number: process.argv[4],
+      });
 
-    return person.save();
-  })
-  .then(() =>  {
-    console.log(`added ${process.argv[3]} number ${process.argv[4]} to phonebook`);
-    return mongoose.connection.close();
-  })
-  .catch(err => console.log(err));
+      return person.save();
+    })
+    .then(() =>  {
+      console.log(`added ${process.argv[3]} number ${process.argv[4]} to phonebook`);
+      return mongoose.connection.close();
+    })
+    .catch(err => console.log(err));
 }
